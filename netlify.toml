@@ -1,7 +1,8 @@
 [build]
   publish = "."
 
-# Redirects for clean URLs to ensure they have a trailing slash
+# Redirects for clean URLs to ensure they have a trailing slash.
+# This makes /Drone1-FT go to /Drone1-FT/
 [[redirects]]
   from = "/Drone1-FT"
   to = "/Drone1-FT/"
