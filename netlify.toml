@@ -1,0 +1,28 @@
+[build]
+  publish = "."
+
+[[redirects]]
+  from = "/Drone1-FT/*"
+  to = "/Drone1-FT/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/Quad1-QFD/*"
+  to = "/Quad1-QFD/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/Drone1-FT"
+  to = "/Drone1-FT/"
+  status = 301
+
+[[redirects]]
+  from = "/Quad1-QFD"
+  to = "/Quad1-QFD/"
+  status = 301
+
+# Redirect root to Drone1-FT as default
+[[redirects]]
+  from = "/"
+  to = "/Drone1-FT/"
+  status = 302 

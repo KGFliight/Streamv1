@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Drone-1 (102) - Live Stream</title>
+  <script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.20.0.js"></script>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #000;
+      color: white;
+    }
+
+    .header {
+      background-color: #111;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 100;
+    }
+
+    .logo {
+      position: absolute;
+      left: 20px;
+      height: 40px;
+    }
+
+    .title {
+      font-size: 22px;
+      font-weight: 600;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      .header {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .logo {
+        position: static;
+        margin-bottom: 8px;
+      }
+
+      .title {
+        font-size: 18px;
+        text-align: center;
+      }
+    }
+
+    #pin-lock {
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    #pin-lock input {
+      padding: 10px;
+      font-size: 18px;
+      width: 100px;
+      text-align: center;
+      margin-right: 10px;
+    }
+
+    #pin-lock button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #00aaff;
+      border: none;
+      color: white;
+      cursor: pointer;
+    }
+
+    #error-message {
+      color: red;
+      margin-top: 10px;
+    }
+
+    .waiting-gif {
+      display: block;
+      max-width: 300px;
+      margin: 20px auto 10px auto;
+      opacity: 0.4;
+      filter: brightness(1.4) contrast(1.2);
+    }
+
+    #remote-stream {
+      display: none;
+      height: calc(100vh - 70px);
+      width: 100%;
+      background: #222;
+      position: relative;
+    }
+
+    .fullscreen-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: rgba(0, 0, 0, 0.6);
+      border: none;
+      color: white;
+      font-size: 14px;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <img class="logo" src="assets/fliight-logo.png" alt="Fliight Technologies Logo" />
+    <h1 class="title">DRONE-1 (ANGEL + AVT CM102)</h1>
+  </div>
+
+  <div id="pin-lock">
+    <img class="waiting-gif" id="waiting-gif" src="assets/waiting-bored.gif" alt="Waiting GIF" />
+    <input type="password" id="pin-input" placeholder="Enter PIN" maxlength="4">
+    <button onclick="verifyPin()">Unlock</button>
+    <div id="error-message"></div>
+  </div>
+
+  <div id="remote-stream">
+    <button class="fullscreen-button" onclick="goFullscreen()">Fullscreen</button>
+  </div>
+
+  <script>
+    const CORRECT_PIN = "0000";
+    const waitingGif = document.getElementById("waiting-gif");
+
+    const APP_ID = "b43faae784e44a7ab90084751aadc31f";
+    const CHANNEL = "AVT102";
+    const TOKEN = "006b43faae784e44a7ab90084751aadc31fIABZXLCykWBuQhEgR0BHjO3+/tNr+K3U0qfp75JeyBAYgyAywrQAAAAAIgBH6XdyLL5WaAQAAQCs+XxoAgCs+XxoAwCs+XxoBACs+Xxo";
+    const UID = 0;
+
+    let client;
+    let lastUser;
+
+    function verifyPin() {
+      const input = document.getElementById("pin-input").value;
+      if (input === CORRECT_PIN) {
+        document.getElementById("pin-lock").style.display = "none";
+        document.getElementById("remote-stream").style.display = "block";
+        waitingGif.style.display = "block";
+        startViewer();
+      } else {
+        document.getElementById("error-message").innerText = "Incorrect PIN. Try again.";
+      }
+    }
+
+    function goFullscreen() {
+      const elem = document.getElementById("remote-stream");
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+      }
+    }
+
+    async function startViewer() {
+      client = AgoraRTC.createClient({ mode: "live", codec: "vp8", role: "audience" });
+
+      try {
+        await client.join(APP_ID, CHANNEL, TOKEN || null, UID);
+
+        client.on("user-published", async (user, mediaType) => {
+          lastUser = user;
+          if (mediaType === "video") {
+            await client.subscribe(user, mediaType);
+            user.videoTrack.play("remote-stream");
+            waitingGif.style.display = "none";
+          }
+        });
+
+        client.on("user-unpublished", () => {
+          const container = document.getElementById("remote-stream");
+          container.innerHTML = '<button class="fullscreen-button" onclick="goFullscreen()">Fullscreen</button>';
+          waitingGif.style.display = "block";
+          setTimeout(startViewer, 5000);
+        });
+
+        client.on("connection-state-change", (curState) => {
+          if (curState === "DISCONNECTED") {
+            waitingGif.style.display = "block";
+            setTimeout(startViewer, 5000);
+          }
+        });
+
+      } catch (error) {
+        console.error("Failed to join Agora channel", error);
+        waitingGif.style.display = "block";
+        setTimeout(startViewer, 5000);
+      }
+    }
+  </script>
+
+</body>
+</html>
