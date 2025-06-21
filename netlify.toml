@@ -25,4 +25,17 @@
 [[redirects]]
   from = "/"
   to = "/Drone1-FT/"
-  status = 302 
+  status = 302
+
+# Alternative: Subdomain routing (uncomment if you want subdomains)
+# [[redirects]]
+#   from = "https://drone1.Fliightstream.com/*"
+#   to = "/Drone1-FT/index.html"
+#   status = 200
+#   force = true
+
+# [[redirects]]
+#   from = "https://quad1.Fliightstream.com/*"
+#   to = "/Quad1-QFD/index.html"
+#   status = 200
+#   force = true 
