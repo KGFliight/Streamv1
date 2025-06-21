@@ -1,16 +1,7 @@
 [build]
   publish = "."
 
-[[redirects]]
-  from = "/Drone1-FT/*"
-  to = "/Drone1-FT/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/Quad1-QFD/*"
-  to = "/Quad1-QFD/index.html"
-  status = 200
-
+# Redirects for clean URLs to ensure they have a trailing slash
 [[redirects]]
   from = "/Drone1-FT"
   to = "/Drone1-FT/"
@@ -20,6 +11,16 @@
   from = "/Quad1-QFD"
   to = "/Quad1-QFD/"
   status = 301
+
+[[redirects]]
+  from = "/Drone1-FT/*"
+  to = "/Drone1-FT/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/Quad1-QFD/*"
+  to = "/Quad1-QFD/index.html"
+  status = 200
 
 # Redirect root to Drone1-FT as default
 [[redirects]]
