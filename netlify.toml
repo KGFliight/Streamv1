@@ -1,6 +1,9 @@
 [build]
   publish = "."
 
+[functions]
+  directory = "netlify/functions"
+
 # Redirects for clean URLs to ensure they have a trailing slash.
 # This makes /Drone1-FT go to /Drone1-FT/
 [[redirects]]

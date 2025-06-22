@@ -134,21 +134,42 @@
     const CORRECT_PIN = "0000";
     const waitingGif = document.getElementById("waiting-gif");
 
-    const APP_ID = "b43faae784e44a7ab90084751aadc31f";
-    const CHANNEL = "AVT102";
-    const TOKEN = "006b43faae784e44a7ab90084751aadc31fIAABP+1JQmh2ZhWxpVL1/AUJGDWj8QeO1SIIMn1d2LfkwyAywrQAAAAAIgBY5NQLSSBZaAQAAQDJW39oAgDJW39oAwDJW39oBADJW39o";
+    const CHANNEL_NAME = "AVT102";
+    let APP_ID = "";
+    let TOKEN = "";
     const UID = 0;
 
     let client;
     let lastUser;
 
-    function verifyPin() {
+    async function getAgoraCreds() {
+      try {
+        const response = await fetch(`/.netlify/functions/get-agora-creds?channel=${CHANNEL_NAME}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch credentials: ${response.statusText}`);
+        }
+        const creds = await response.json();
+        APP_ID = creds.appId;
+        TOKEN = creds.token;
+        return true;
+      } catch (error) {
+        console.error(error);
+        document.getElementById("error-message").innerText = "Error: Could not retrieve stream credentials.";
+        return false;
+      }
+    }
+
+    async function verifyPin() {
       const input = document.getElementById("pin-input").value;
       if (input === CORRECT_PIN) {
         document.getElementById("pin-lock").style.display = "none";
         document.getElementById("remote-stream").style.display = "block";
         waitingGif.style.display = "block";
-        startViewer();
+        
+        const credsOk = await getAgoraCreds();
+        if (credsOk) {
+          startViewer();
+        }
       } else {
         document.getElementById("error-message").innerText = "Incorrect PIN. Try again.";
       }
@@ -166,10 +187,14 @@
     }
 
     async function startViewer() {
+      if (!APP_ID || !TOKEN) {
+        document.getElementById("error-message").innerText = "Error: Credentials not loaded.";
+        return;
+      }
       client = AgoraRTC.createClient({ mode: "live", codec: "vp8", role: "audience" });
 
       try {
-        await client.join(APP_ID, CHANNEL, TOKEN || null, UID);
+        await client.join(APP_ID, CHANNEL_NAME, TOKEN, UID);
 
         client.on("user-published", async (user, mediaType) => {
           lastUser = user;

@@ -1,0 +1,24 @@
+{
+  "name": "streamv1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KGFliight/Streamv1.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/KGFliight/Streamv1/issues"
+  },
+  "homepage": "https://github.com/KGFliight/Streamv1#readme",
+  "dependencies": {
+    "dotenv": "^16.5.0"
+  }
+}
